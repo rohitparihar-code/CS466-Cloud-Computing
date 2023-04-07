@@ -123,3 +123,76 @@ if __name__ == "__main__":
         Qos(execution_cost=4, execution_time=1.15),
         "./img/image_2.jpeg",
     )
+
+def get_specifications(function_input):
+    # Extract the event name and input data from the function input
+    event_name = function_input.get('event_name')
+    input_data = function_input.get('input_data')
+    
+    # Determine the function name and QoS specifications based on the event name and input data
+    if event_name == 'process_data':
+        function_name = 'process_data_function'
+        qos_specs = {'memory': 128, 'timeout': 10}
+    elif event_name == 'send_email':
+        function_name = 'send_email_function'
+        qos_specs = {'memory': 256, 'timeout': 20}
+    else:
+        function_name = None
+        qos_specs = None
+    
+    # Return the function name and QoS specifications as a tuple
+    return function_name, qos_specs
+
+def analytics_engine(function_name, qos_specs):
+    # Identify the appropriate ML model based on the function name
+    if function_name == 'process_data_function':
+        ml_model = 'linear_regression'
+    elif function_name == 'send_email_function':
+        ml_model = 'naive_bayes'
+    else:
+        ml_model = None
+    
+    # Generate the resource specification based on the QoS specifications and ML model
+    if ml_model == 'linear_regression':
+        cpu = qos_specs['memory'] // 64
+        memory = qos_specs['memory']
+        gpu = 0
+        storage = 1024
+        network = 100
+    elif ml_model == 'naive_bayes':
+        cpu = qos_specs['memory'] // 128
+        memory = qos_specs['memory'] * 2
+        gpu = 1
+        storage = 2048
+        network = 200
+    else:
+        cpu = 0
+        memory = 0
+        gpu = 0
+        storage = 0
+        network = 0
+    
+    # Return the resource specification as a dictionary
+    resource_spec = {'cpu': cpu, 'memory': memory, 'gpu': gpu, 'storage': storage, 'network': network}
+    return resource_spec
+
+
+
+def frontend_server(request):
+    # Extract the event name, function-assisted input, and payload from the request
+    event_name = request.GET.get('event_name')
+    function_input = request.GET.get('function_input')
+    payload = request.GET.get('payload')
+    
+    # Perform any necessary processing based on the event name and input data
+    if get_specifications == 'get_specifications':
+        result = get_specifications(function_input, payload)
+        result1 = analytics_engine(result[0], result[1])
+
+    elif event_name == 'send_email':
+        result = send_email(function_input, payload)
+    else:
+        result = {'error': 'Invalid event name'}
+    
+    # Return the result as a JSON response
+    return JsonResponse(result)
