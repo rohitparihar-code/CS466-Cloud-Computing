@@ -19,8 +19,8 @@ def video_conversion(num):
 
 
 def face_detection(imagePath: str):
-    imgPath = imagePath[0]
-    fd(imagePath=imgPath)
+    # imgPath = imagePath[0]
+    fd(imagePath=imagePath)
 
 
 def gif_creation(num):

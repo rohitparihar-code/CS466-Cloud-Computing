@@ -2,6 +2,7 @@ import cv2
 
 
 def fd(imagePath: str):
+    print(imagePath)
     imagePathList = imagePath.split("/")
     imageName = imagePathList[len(imagePathList) - 1]
 
@@ -20,7 +21,7 @@ def fd(imagePath: str):
     for x, y, w, h in faces:
         cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-    status = cv2.imwrite(f"./img/faces_detected/faces_detected-{imageName}.jpg", image)
+    status = cv2.imwrite(f"./img/faces_detected-{imageName}.jpg", image)
     print("[INFO] Image faces_detected.jpg written to filesystem: ", status)
 
 

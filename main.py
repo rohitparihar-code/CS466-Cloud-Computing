@@ -43,7 +43,7 @@ def estimate_hr_exec_time(et_fi_base: float) -> list[ResourceUnit]:
     return probable_list
 
 
-def function_deployment(candidate_list: list[ResourceUnit]):
+def function_deployment(candidate_list: list[ResourceUnit], fn, params) -> ResourceUnit:
     """
     Takes a candidate list as input and returns a worker that satisfies the QoS metric and has available
     resources to service the function execution request.
@@ -58,8 +58,12 @@ def function_deployment(candidate_list: list[ResourceUnit]):
         res_type = res_unit.resourceType
         if res_type.check_worker_for_compatibility():
             res_type.add_worker_instance()
-            worker = res_type
-        break
+            worker = res_unit
+            execute_function(fi=fn, params=params, res_unit=res_unit)
+            break
+
+    if worker == None:
+        print("No suitable worker found")
 
     return worker
 
@@ -71,39 +75,47 @@ def analytics_engine(function_name, function_params):
     # Identifies the appropriate ML model (one model for each function) and returns the appropriate resource configurations
     # based on the execution time
 
-    return predict_execution_time(function_name, function_params)
+    return (
+        predict_execution_time(function_name, function_params),
+        function_name,
+        function_params,
+    )
 
 
-def faas_resource_manager(function_input, user_qos: Qos):
+def faas_resource_manager(function_input):
     # Extract the event name and input data from the function input
     event_name = function_input.get("event_name")
     input_data = function_input.get("input_data")
+    qos = function_input.get("qos")
+    user_qos = Qos(latency=qos["latency"], cost=qos["cost"])
 
     (function_name, qos_specs) = event_database(event_name=event_name)
 
-    resource_list = analytics_engine(function_name, input_data)
-
-    filtered_hr_list = applyQosFilter(resource_list, user_qos)
-
     # Return the function name and QoS specifications as a tuple
-    return filtered_hr_list
+    return (function_name, input_data)
 
 
 def frontend_server(request):
     # Extract the event name, function-assisted input, and payload from the request
-    event_name = request.GET.get("event_name")
-    function_input = request.GET.get("function_input")
-    payload = request.GET.get("payload")
+    event_name = "face detection"  # event_name = request.GET.get("event_name")
+    input_data = "./img/image_1.jpeg"
+    qos = {"latency": 5, "cost": None}
+    function_input = {"event_name": event_name, "input_data": input_data, "qos": qos}
+    # function_input = request.GET.get("function_input")
+    # payload = request.GET.get("payload")
 
     # Perform any necessary processing based on the event name and input data
-    if faas_resource_manager == "get_specifications":
-        result = faas_resource_manager(function_input, payload)
-        result1 = analytics_engine(result[0], result[1])
+    result = faas_resource_manager(function_input)
+    resource_list, function_name, function_params = analytics_engine(
+        result[0], result[1]
+    )
+    worker = function_deployment(resource_list, function_name, function_params)
 
-    elif event_name == "send_email":
-        result = send_email(function_input, payload)
-    else:
-        result = {"error": "Invalid event name"}
+    print("Executed on: " + worker.resourceType.name)
 
     # Return the result as a JSON response
-    return JsonResponse(result)
+    # return JsonResponse(result)
+
+
+if __name__ == "__main__":
+    frontend_server("")

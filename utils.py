@@ -5,10 +5,10 @@ from models.resource_unit import ResourceUnit
 from example_functions.functions import *
 
 
-def event_database(event_name: str) -> tuple(function, Qos):
+def event_database(event_name: str):
     # Returns the function name and the assosciated QOS Specifications
 
-    event = event_name.lower
+    event = event_name
 
     if event == "image resizing":
         return (image_resizing, Qos(1, 1))
@@ -57,7 +57,7 @@ def applyQosFilter(probableList: list[ResourceUnit], qos: Qos) -> list[ResourceU
     return result
 
 
-def execute_function(res_unit: ResourceUnit, fi, *params):
+def execute_function(res_unit: ResourceUnit, fi, params):
     res_type = res_unit.resourceType
 
     print(f"Deploying funtion: {fi} with params: {params} on {res_type.name}\n")
