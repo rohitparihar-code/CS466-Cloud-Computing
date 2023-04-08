@@ -43,23 +43,14 @@ def estimate_hr_exec_time(et_fi_base: float) -> list[ResourceUnit]:
     return probable_list
 
 
-def function_deployment(candidate_list: list[ResourceUnit], f, *params):
-    # Choose a worker for a function based on the candidate list, and deploy that function on it.
+def function_deployment(candidate_list: list[ResourceUnit]):
+    """
+    Takes a candidate list as input and returns a worker that satisfies the QoS metric and has available
+    resources to service the function execution request.
 
-    # Selecting a suitable worker
-
-    # 1: for rj in candidate_list:
-    # 2:    resource_type = rj.get_resource_type()
-    # 3:    for wk in resource_type:
-    # The compatibility check considers the usable resource capacity in the worker, affinity of the data for the
-    # function at the worker for making the choice.
-    # 4:        if check_worker_for_compatibility(wk):
-    # 5:            cw = wk
-    # 6:            res_spec = rj
-    # 7:            break
-    # 8:        end if
-    # 9:    end for
-    # 10: end for
+    :param candidate_list: A list of candidate workers that can service the function execution request which satisfies the QOS metric.
+    :return: The worker that satisfies the QoS metric and has available resources to service the function execution request.
+    """
 
     for res_unit in candidate_list:
         res_type = res_unit.resourceType
@@ -67,7 +58,6 @@ def function_deployment(candidate_list: list[ResourceUnit], f, *params):
             res_type.add_worker_instance()
         # Dispatching the function execution
         # 11: cw.execute_function(fi, param_location, res_spec)
-        execute_function(res_unit, f, *params)
         break
 
     return None
