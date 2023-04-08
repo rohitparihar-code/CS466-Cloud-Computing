@@ -7,11 +7,11 @@ from example_functions.fn_examples import *
 
 def get_execution_time(f, *params):
     # returns the estimated function execution time (in seconds)
-    if f == fn_example_3:
+    if f == face_detection:
         return 2.25
-    elif f == fn_example_1:
+    elif f == image_recognition:
         return 10 * params[0]
-    elif f == fn_example_2:
+    elif f == video_conversion:
         return 20 * params[0]
     else:
         return 20

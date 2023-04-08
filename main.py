@@ -101,30 +101,30 @@ def function_deployment(candidate_list: list[ResourceUnit], f, *params):
 
 if __name__ == "__main__":
     predict_execution_time(
-        fn_example_3,
+        face_detection,
         Qos(execution_cost=4, execution_time=1.15),
         "./img/image_1.jpeg",
     )
 
     predict_execution_time(
-        fn_example_1,
+        image_recognition,
         Qos(execution_cost=10, execution_time=2),
         2,
     )
 
     predict_execution_time(
-        fn_example_2,
+        video_conversion,
         Qos(execution_cost=6, execution_time=1),
         1,
     )
 
     predict_execution_time(
-        fn_example_3,
+        face_detection,
         Qos(execution_cost=4, execution_time=1.15),
         "./img/image_2.jpeg",
     )
 
-def get_specifications(function_input):
+def faas_resource_manager(function_input):
     # Extract the event name and input data from the function input
     event_name = function_input.get('event_name')
     input_data = function_input.get('input_data')
@@ -185,8 +185,8 @@ def frontend_server(request):
     payload = request.GET.get('payload')
     
     # Perform any necessary processing based on the event name and input data
-    if get_specifications == 'get_specifications':
-        result = get_specifications(function_input, payload)
+    if faas_resource_manager == 'get_specifications':
+        result = faas_resource_manager(function_input, payload)
         result1 = analytics_engine(result[0], result[1])
 
     elif event_name == 'send_email':

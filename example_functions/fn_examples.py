@@ -1,23 +1,30 @@
 import time
-from example_functions.face_detection import face_detection
+from example_functions.face_detection import fd
 
 
-def fn_example_1(num):
+def image_recognition(num):
     n = num[0]
-    t = 10 * n  # 10 seconds Execution
-    print("Function Execution fn_example_1")
+    t = 3 * n  # 3 seconds Execution
+    print("Function Execution image_recognition")
     time.sleep(t)
     return True
 
 
-def fn_example_2(num):
+def video_conversion(num):
     n = num[0]
     t = 20 * n  # 20 seconds Execution
-    print("Function Execution fn_example_2")
+    print("Function Execution video_conversion")
     time.sleep(t)
     return True
 
 
-def fn_example_3(imagePath: str):
+def face_detection(imagePath: str):
     imgPath = imagePath[0]
-    face_detection(imagePath=imgPath)
+    fd(imagePath=imgPath)
+
+def gif_creation(num):
+    n = num[0]
+    t = 2*n
+    print("Function Execution gif_creation")
+    time.sleep(t)
+    return True

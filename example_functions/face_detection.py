@@ -1,7 +1,7 @@
 import cv2
 
 
-def face_detection(imagePath: str):
+def fd(imagePath: str):
     imagePathList = imagePath.split("/")
     imageName = imagePathList[len(imagePathList) - 1]
 
@@ -25,4 +25,4 @@ def face_detection(imagePath: str):
 
 
 if __name__ == "__main__":
-    face_detection()
+    fd()
