@@ -11,13 +11,13 @@ def event_database(event_name: str) -> tuple(function, Qos):
     event = event_name.lower
 
     if event == "image resizing":
-        return (image_resizing, Qos(1))
+        return (image_resizing, Qos(1, 1))
     elif event == "gif creator":
-        return (gif_creation, Qos(1))
+        return (gif_creation, Qos(1, 1.1))
     elif event == "face detection":
-        return (face_detection, Qos(2))
+        return (face_detection, Qos(2, 2))
     elif event == "video conversion":
-        return (video_conversion, Qos(3))
+        return (video_conversion, Qos(3, 3))
     else:
         return (None, None)
 

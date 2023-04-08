@@ -52,15 +52,16 @@ def function_deployment(candidate_list: list[ResourceUnit]):
     :return: The worker that satisfies the QoS metric and has available resources to service the function execution request.
     """
 
+    worker = None
+
     for res_unit in candidate_list:
         res_type = res_unit.resourceType
         if res_type.check_worker_for_compatibility():
             res_type.add_worker_instance()
-        # Dispatching the function execution
-        # 11: cw.execute_function(fi, param_location, res_spec)
+            worker = res_type
         break
 
-    return None
+    return worker
 
 
 def analytics_engine(function_name, function_params):
