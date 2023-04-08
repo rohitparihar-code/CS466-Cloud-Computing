@@ -125,8 +125,10 @@ if __name__ == "__main__":
     )
 
 
+
+
+
 def analytics_engine(function_name, function_params):
-    
 
 def faas_resource_manager(function_input):
     # Extract the event name and input data from the function input
@@ -139,6 +141,30 @@ def faas_resource_manager(function_input):
 
     # Return the function name and QoS specifications as a tuple
     return function_name, qos_specs
+
+def deployment_module(candidate_list, qos_metric):
+    """
+    Takes a candidate list and QoS metric as input and returns a worker that satisfies the QoS metric and has available
+    resources to service the function execution request.
+
+    :param candidate_list: A list of candidate workers that can service the function execution request.
+    :param qos_metric: The QoS metric that the worker must satisfy.
+    :return: The worker that satisfies the QoS metric and has available resources to service the function execution request.
+    """
+    # Sort the candidate list by ascending cost.
+    candidate_list = sorted(candidate_list, key=lambda x: x['cost'])
+
+    # Loop through each candidate in the sorted list.
+    for candidate in candidate_list:
+        # Check if the candidate satisfies the QoS metric.
+        if candidate['qos_metric'] >= qos_metric:
+            # Check if the candidate has available resources.
+            if candidate['available_resources']:
+                # Return the candidate worker.
+                return candidate['worker']
+
+    # If no candidate worker was found, return None.
+    return None
 
 
 def frontend_server(request):
