@@ -39,19 +39,20 @@ def get_execution_time(f, *params):
 
 
 def applyQosFilter(probableList: list[ResourceUnit], qos: Qos) -> list[ResourceUnit]:
-    candidate_list = []
+    latency_metric = qos.latency
+    cost_metric = qos.cost
 
-    for res_unit in probableList:
-        print(
-            f"{res_unit.resourceType.name} {res_unit.execution_time} {qos.execution_time}"
+    if latency_metric is not None:
+        candidate_list = filter(
+            lambda unit: unit.execution_time <= latency_metric, probableList
         )
-        if res_unit.execution_time <= qos.execution_time:
-            candidate_list.append(res_unit)
-
-    if len(candidate_list) == 0:
-        result = sorted(probableList, key=lambda x: x.execution_cost, reverse=True)
-    else:
         result = sorted(candidate_list, key=lambda x: x.execution_cost)
+
+    else:
+        candidate_list = filter(
+            lambda unit: unit.execution_cost <= cost_metric, probableList
+        )
+        result = sorted(candidate_list, key=lambda x: x.execution_time)
 
     return result
 

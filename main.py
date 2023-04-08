@@ -12,46 +12,20 @@ RESOURCE_SET = {
 }
 
 
-def predict_execution_time(f, qos, *params):
+def predict_execution_time(fn, *params) -> list[ResourceUnit]:
     # Takes function and its parameters as input (function: fi, parameters: p1, p2, p3, ... pn)
+    # returns the probable list of resources that can be used with their estimated execution time and cost
 
-    # Model selection and prediction
-    # Identifies the appropriate ML model (one model for each function) and returns the appropriate resource configurations
-    # based on the execution time
-
-    # returns the expected execution time for a function
-    et_fi_base = get_execution_time(f, *params)
+    # returns the expected execution time for a function on base resource
+    et_fi_base = get_execution_time(fn, *params)
 
     # Estimate execution time for different resource types
     probable_list = estimate_hr_exec_time(et_fi_base)
-
-    # Apply the User-specified QoS filter
-
-    # The QoS filter details the QoS metrics such as time for completion, cost, preference of
-    # execution etc.; it prunes the resource types and their associated
-    # resource specifications that do not pass the QoS metrics for
-    # that function.
-    # 4: QoS_fi = fetchQoS(fi)
-
-    # The candidate list holds the resource types and associated configurations in the order sorted by the QoS filter
-    # 5: candidate_list = probable_list.applyFilter(QoS(fi))
-    candidate_list = applyQosFilter(probable_list, qos)
-
-    function_deployment(candidate_list, f, *params)
-    return True
+    return probable_list
 
 
 def estimate_hr_exec_time(et_fi_base: float) -> list[ResourceUnit]:
-    # Returns a list of estimated execution costs and time for a function based on a reference execution time
-
-    # rj: resource type
-    # srj: resource specification
-
-    # et_fi_rj: estimated computing time for the function with the resource type rj
-    # psi (fi, rj , srj ): gives the conversion factor for function fi with resource type rj and resource specification of it being srj
-
-    # ec_fi_rj: the estimated execution cost
-    # omega (rj, srj): Cost function of the resource type rj
+    # Returns a list of estimated execution costs and time for heterogenous resources for a function based on a reference execution time
 
     probable_list = []
 
@@ -99,36 +73,17 @@ def function_deployment(candidate_list: list[ResourceUnit], f, *params):
     return None
 
 
-if __name__ == "__main__":
-    predict_execution_time(
-        face_detection,
-        Qos(execution_cost=4, execution_time=1.15),
-        "./img/image_1.jpeg",
-    )
-
-    predict_execution_time(
-        image_resizing,
-        Qos(execution_cost=10, execution_time=2),
-        2,
-    )
-
-    predict_execution_time(
-        video_conversion,
-        Qos(execution_cost=6, execution_time=1),
-        1,
-    )
-
-    predict_execution_time(
-        face_detection,
-        Qos(execution_cost=4, execution_time=1.15),
-        "./img/image_2.jpeg",
-    )
-
-
 def analytics_engine(function_name, function_params):
-    
+    # Takkes function and its parameters as input and returns the probable list of resources configs that can be used
 
-def faas_resource_manager(function_input):
+    # Model selection and prediction
+    # Identifies the appropriate ML model (one model for each function) and returns the appropriate resource configurations
+    # based on the execution time
+
+    return predict_execution_time(function_name, function_params)
+
+
+def faas_resource_manager(function_input, user_qos: Qos):
     # Extract the event name and input data from the function input
     event_name = function_input.get("event_name")
     input_data = function_input.get("input_data")
@@ -137,8 +92,10 @@ def faas_resource_manager(function_input):
 
     resource_list = analytics_engine(function_name, input_data)
 
+    filtered_hr_list = applyQosFilter(resource_list, user_qos)
+
     # Return the function name and QoS specifications as a tuple
-    return function_name, qos_specs
+    return filtered_hr_list
 
 
 def frontend_server(request):
