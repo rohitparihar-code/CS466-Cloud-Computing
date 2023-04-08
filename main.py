@@ -1,14 +1,14 @@
 from utils import *
-from example_functions.fn_examples import *
+from example_functions.functions import *
 from models.resource_type import *
 from models.qos import Qos
 from models.resource_unit import ResourceUnit
 
 RESOURCE_SET = {
     ResourceType("edge_1", 1.0, 1.0, 6, 0),
-    ResourceType("edge_2", 0.9, 1.5, 4, 0),
-    ResourceType("cloud_1", 0.6, 3.0, 2, 0),
-    ResourceType("cloud_2", 0.4, 5.0, 2, 0),
+    ResourceType("edge_2", 0.85, 1.5, 4, 0),
+    ResourceType("cloud_1", 0.5, 3.0, 2, 0),
+    ResourceType("cloud_2", 0.35, 5.0, 2, 0),
 }
 
 
@@ -16,11 +16,11 @@ def predict_execution_time(f, qos, *params):
     # Takes function and its parameters as input (function: fi, parameters: p1, p2, p3, ... pn)
 
     # Model selection and prediction
-    # 1: fi_model = identify_model(fi) # Identify correct ML model
-    # 2: et_fi_base = fi_model.predict(p1, p2, ....., pn) # Predicted output time (estimated_time)
-    et_fi_base = get_execution_time(f, *params)
+    # Identifies the appropriate ML model (one model for each function) and returns the appropriate resource configurations
+    # based on the execution time
 
-    # print(f"\nEstimate Time To Execute: {round(et_fi_base, 5)} sec")
+    # returns the expected execution time for a function
+    et_fi_base = get_execution_time(f, *params)
 
     # Estimate execution time for different resource types
     probable_list = estimate_hr_exec_time(et_fi_base)
@@ -107,7 +107,7 @@ if __name__ == "__main__":
     )
 
     predict_execution_time(
-        image_recognition,
+        image_resizing,
         Qos(execution_cost=10, execution_time=2),
         2,
     )
@@ -124,75 +124,38 @@ if __name__ == "__main__":
         "./img/image_2.jpeg",
     )
 
+
+def analytics_engine(function_name, function_params):
+    
+
 def faas_resource_manager(function_input):
     # Extract the event name and input data from the function input
-    event_name = function_input.get('event_name')
-    input_data = function_input.get('input_data')
-    
-    # Determine the function name and QoS specifications based on the event name and input data
-    if event_name == 'process_data':
-        function_name = 'process_data_function'
-        qos_specs = {'memory': 128, 'timeout': 10}
-    elif event_name == 'send_email':
-        function_name = 'send_email_function'
-        qos_specs = {'memory': 256, 'timeout': 20}
-    else:
-        function_name = None
-        qos_specs = None
-    
+    event_name = function_input.get("event_name")
+    input_data = function_input.get("input_data")
+
+    (function_name, qos_specs) = event_database(event_name=event_name)
+
+    resource_list = analytics_engine(function_name, input_data)
+
     # Return the function name and QoS specifications as a tuple
     return function_name, qos_specs
-
-def analytics_engine(function_name, qos_specs):
-    # Identify the appropriate ML model based on the function name
-    if function_name == 'process_data_function':
-        ml_model = 'linear_regression'
-    elif function_name == 'send_email_function':
-        ml_model = 'naive_bayes'
-    else:
-        ml_model = None
-    
-    # Generate the resource specification based on the QoS specifications and ML model
-    if ml_model == 'linear_regression':
-        cpu = qos_specs['memory'] // 64
-        memory = qos_specs['memory']
-        gpu = 0
-        storage = 1024
-        network = 100
-    elif ml_model == 'naive_bayes':
-        cpu = qos_specs['memory'] // 128
-        memory = qos_specs['memory'] * 2
-        gpu = 1
-        storage = 2048
-        network = 200
-    else:
-        cpu = 0
-        memory = 0
-        gpu = 0
-        storage = 0
-        network = 0
-    
-    # Return the resource specification as a dictionary
-    resource_spec = {'cpu': cpu, 'memory': memory, 'gpu': gpu, 'storage': storage, 'network': network}
-    return resource_spec
-
 
 
 def frontend_server(request):
     # Extract the event name, function-assisted input, and payload from the request
-    event_name = request.GET.get('event_name')
-    function_input = request.GET.get('function_input')
-    payload = request.GET.get('payload')
-    
+    event_name = request.GET.get("event_name")
+    function_input = request.GET.get("function_input")
+    payload = request.GET.get("payload")
+
     # Perform any necessary processing based on the event name and input data
-    if faas_resource_manager == 'get_specifications':
+    if faas_resource_manager == "get_specifications":
         result = faas_resource_manager(function_input, payload)
         result1 = analytics_engine(result[0], result[1])
 
-    elif event_name == 'send_email':
+    elif event_name == "send_email":
         result = send_email(function_input, payload)
     else:
-        result = {'error': 'Invalid event name'}
-    
+        result = {"error": "Invalid event name"}
+
     # Return the result as a JSON response
     return JsonResponse(result)

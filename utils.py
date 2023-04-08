@@ -2,36 +2,54 @@ import time
 from models.qos import Qos
 
 from models.resource_unit import ResourceUnit
-from example_functions.fn_examples import *
+from example_functions.functions import *
+
+
+def event_database(event_name: str) -> tuple(function, Qos):
+    # Returns the function name and the assosciated QOS Specifications
+
+    event = event_name.lower
+
+    if event == "image resizing":
+        return (image_resizing, Qos(1))
+    elif event == "gif creator":
+        return (gif_creation, Qos(1))
+    elif event == "face detection":
+        return (face_detection, Qos(2))
+    elif event == "video conversion":
+        return (video_conversion, Qos(3))
+    else:
+        return (None, None)
 
 
 def get_execution_time(f, *params):
     # returns the estimated function execution time (in seconds)
-    if f == face_detection:
-        return 2.25
-    elif f == image_recognition:
-        return 10 * params[0]
+
+    # TODO: Should also depend on the params
+    if f == image_resizing:
+        return 1
+    elif f == gif_creation:
+        return 1
+    elif f == face_detection:
+        return 2
     elif f == video_conversion:
-        return 20 * params[0]
+        return 3
     else:
-        return 20
+        return 0
 
 
 def applyQosFilter(probableList: list[ResourceUnit], qos: Qos) -> list[ResourceUnit]:
-    et_c = 0.5
-    et_w = 1 - et_c
-
-    user_w = qos.execution_cost * et_c + qos.execution_time * et_w
-
     candidate_list = []
 
-    for x in probableList:
-        score = x.execution_cost * et_c + x.execution_time * et_w
-        if score <= user_w:
-            candidate_list.append(x)
+    for res_unit in probableList:
+        print(
+            f"{res_unit.resourceType.name} {res_unit.execution_time} {qos.execution_time}"
+        )
+        if res_unit.execution_time <= qos.execution_time:
+            candidate_list.append(res_unit)
 
     if len(candidate_list) == 0:
-        result = sorted(probableList, key=lambda x: x.execution_cost)
+        result = sorted(probableList, key=lambda x: x.execution_cost, reverse=True)
     else:
         result = sorted(candidate_list, key=lambda x: x.execution_cost)
 
