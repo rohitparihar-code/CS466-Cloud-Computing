@@ -46,13 +46,13 @@ def applyQosFilter(probableList: list[ResourceUnit], qos: Qos) -> list[ResourceU
         candidate_list = filter(
             lambda unit: unit.execution_time <= latency_metric, probableList
         )
-        result = sorted(candidate_list, key=lambda x: x.execution_time)
+        result = sorted(candidate_list, key=lambda x: x.execution_cost)
 
     else:
         candidate_list = filter(
             lambda unit: unit.execution_cost <= cost_metric, probableList
         )
-        result = sorted(candidate_list, key=lambda x: x.execution_cost)
+        result = sorted(candidate_list, key=lambda x: x.execution_time)
 
     return result
 

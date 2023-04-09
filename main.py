@@ -98,7 +98,7 @@ def frontend_server(request):
     # Extract the event name, function-assisted input, and payload from the request
     event_name = "face detection"  # event_name = request.GET.get("event_name")
     input_data = "./img/image_1.jpeg"
-    qos = {"latency": 5, "cost": None}
+    qos = {"latency": 1.5, "cost": None}
     user_qos = Qos(latency=qos["latency"], cost=qos["cost"])
     function_input = {"event_name": event_name, "input_data": input_data, "qos": qos}
     # function_input = request.GET.get("function_input")
@@ -110,6 +110,9 @@ def frontend_server(request):
         result[0], result[1]
     )
     rs_list_sorted = applyQosFilter(resource_list, user_qos)  # Filtered resource list
+    if rs_list_sorted == None:
+        print("No Suitable Resource Found")
+        return
     worker = function_deployment(rs_list_sorted, function_name, function_params)
 
     print("Executed on: " + worker.resourceType.name)
