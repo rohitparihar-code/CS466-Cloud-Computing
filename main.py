@@ -87,7 +87,6 @@ def faas_resource_manager(function_input):
     event_name = function_input.get("event_name")
     input_data = function_input.get("input_data")
     qos = function_input.get("qos")
-    user_qos = Qos(latency=qos["latency"], cost=qos["cost"])
 
     (function_name, qos_specs) = event_database(event_name=event_name)
 
@@ -100,6 +99,7 @@ def frontend_server(request):
     event_name = "face detection"  # event_name = request.GET.get("event_name")
     input_data = "./img/image_1.jpeg"
     qos = {"latency": 5, "cost": None}
+    user_qos = Qos(latency=qos["latency"], cost=qos["cost"])
     function_input = {"event_name": event_name, "input_data": input_data, "qos": qos}
     # function_input = request.GET.get("function_input")
     # payload = request.GET.get("payload")
@@ -109,7 +109,8 @@ def frontend_server(request):
     resource_list, function_name, function_params = analytics_engine(
         result[0], result[1]
     )
-    worker = function_deployment(resource_list, function_name, function_params)
+    rs_list_sorted = applyQosFilter(resource_list, user_qos)  # Filtered resource list
+    worker = function_deployment(rs_list_sorted, function_name, function_params)
 
     print("Executed on: " + worker.resourceType.name)
 
